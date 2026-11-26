@@ -166,7 +166,7 @@
     <table>
       <tr><td>Kas DTR (20%)</td><td id="rDTR"></td></tr>
       <tr><td>Kas Kolam (10% dari 80%)</td><td id="rKolam"></td></tr>
-      <tr><td>Sisa untuk coach</td><td id="rBagi"></td></tr>
+      <tr id="trBagi"><td>Sisa untuk coach</td><td id="rBagi"></td></tr>
       <tr><td id="lEka">Coach 1 (70%)</td><td id="rEka"></td></tr>
       <tr id="trLain"><td id="lLain">Coach 2 (30%)</td><td id="rLain"></td></tr>
     </table>
@@ -243,7 +243,7 @@
       $('sTanggal').textContent = formatTanggal(S.sesi.tanggal);
       $('sCoach').textContent = (S.sesi.coach2 ? 'Coach 1: ' + S.sesi.coach1 + ' · Coach 2: ' + S.sesi.coach2 : 'Coach: ' + S.sesi.coach1) + (S.sesi.tiket ? ' · Tiket Coach' : '');
       $('hint').textContent = rp(harga()) + ' / peserta';
-      $('lEka').textContent = S.sesi.coach1 + (S.sesi.coach2 ? ' (70%)' : ' (100%)');
+      $('lEka').textContent = S.sesi.coach1 + (S.sesi.coach2 ? ' (70%)' : '');
       $('lLain').textContent = S.sesi.coach2 ? S.sesi.coach2 + ' (30%)' : '';
     } else {
       $('lEka').textContent = 'Coach 1 (70%)';
@@ -268,6 +268,7 @@
 
     var h = hitung();
     $('trLain').hidden = !h.dua;
+    $('trBagi').hidden = !h.dua;
     $('tiketRow').hidden = !h.tiket;
     if (h.tiket) {
       $('tiketLbl').textContent = 'Tiket Coach (' + h.jml + ' × ' + rp(TIKET) + ')';
@@ -374,7 +375,7 @@
     else info.push(['Coach', s.coach1]);
     var off = (4 - info.length) * 38;
     var ex = h.tiket ? rowH : 0;
-    var tinggi = 960 + n * rowH + ex - off - (h.dua ? 0 : rowH);
+    var tinggi = 960 + n * rowH + ex - off - (h.dua ? 0 : 2 * rowH);
     var c = document.createElement('canvas');
     c.width = W * scale; c.height = tinggi * scale;
     var ctx = c.getContext('2d'); ctx.scale(scale, scale);
@@ -446,10 +447,10 @@
     var top2 = head2 + 16;
     var baris = [
       ['Kas DTR (20% dari total)', h.kasDTR, 0],
-      ['Kas Kolam (10% dari 80%)', h.kasKolam, 0],
-      ['Sisa untuk coach (90% dari 80%)', h.bagi, 0],
-      [s.coach1 + (h.dua ? ' (70%)' : ' (100%)'), h.eka, 0]
+      ['Kas Kolam (10% dari 80%)', h.kasKolam, 0]
     ];
+    if (h.dua) baris.push(['Sisa untuk coach (90% dari 80%)', h.bagi, 0]);
+    baris.push([s.coach1 + (h.dua ? ' (70%)' : ''), h.eka, 0]);
     if (h.dua) baris.push([s.coach2 + ' (30%)', h.lainnya, 0]);
     baris.forEach(function (b, i) {
       var cy = top2 + i * rowH + 33, sub = b[2];
