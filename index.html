@@ -103,9 +103,9 @@
     <h2>Pertemuan</h2>
     <div class="row">
       <div>
-        <label for="tempat">Tempat</label>
+        <label for="tempat">Kolam</label>
         <select id="tempat">
-          <option value="">Pilih tempat</option>
+          <option value="">Pilih Kolam</option>
           <option>Sumberbeling</option><option>NK Cafe</option>
           <option>Manali Hill</option><option>Langlang Waterplay</option>
           <option>Kostrad</option>
@@ -116,12 +116,12 @@
         <input type="date" id="tanggal">
       </div>
     </div>
-    <label for="coach1">Coach 1 (hasil 70%)</label>
+    <label for="coach1">Coach 1</label>
     <input type="text" id="coach1" placeholder="Nama coach 1" autocomplete="off">
-    <label for="coach2">Coach 2 (hasil 30%)</label>
+    <label for="coach2">Coach 2</label>
     <input type="text" id="coach2" placeholder="Nama coach 2" autocomplete="off">
     <div class="hint" id="hintSetup"></div>
-    <button type="button" class="full" id="btnKunci">Simpan dan kunci</button>
+    <button type="button" class="full" id="btnKunci">Simpan</button>
   </div>
 
   <!-- Pertemuan sudah dikunci -->
@@ -138,10 +138,10 @@
   <div class="msg err" id="err"></div>
 
   <div class="card" id="addCard" hidden>
-    <h2>Tambah peserta <span id="hint"></span></h2>
+    <h2>Tambah Peserta <span id="hint"></span></h2>
     <div class="row">
-      <input type="text" id="nama" placeholder="Nama peserta" autocomplete="off">
-      <button type="button" class="add" id="btnTambah" aria-label="Tambah peserta">+</button>
+      <input type="text" id="nama" placeholder="Nama Peserta" autocomplete="off">
+      <button type="button" class="add" id="btnTambah" aria-label="Tambah Peserta">+</button>
     </div>
   </div>
 
@@ -151,7 +151,7 @@
   </div>
 
   <div class="card">
-    <h2>Pembagian hasil</h2>
+    <h2>Pembagian</h2>
     <table>
       <tr><td>Kas DTR (20%)</td><td id="rDTR"></td></tr>
       <tr><td>Sisa 80%</td><td id="rSisa80"></td></tr>
@@ -165,17 +165,17 @@
   <div class="msg" id="msgRekap"></div>
 
   <div class="card" id="preview">
-    <h2>Hasil rekap</h2>
+    <h2>Rekap</h2>
     <img id="imgRekap" alt="Gambar rekap keuangan">
-    <button type="button" class="full" id="btnDownload">Download gambar</button>
+    <button type="button" class="full" id="btnDownload">Download</button>
   </div>
 
-  <button type="button" class="linkbtn" id="btnReset">Kosongkan daftar peserta</button>
+  <button type="button" class="linkbtn" id="btnReset">Kosongkan Daftar Peserta</button>
 </div>
 
 <div class="bar">
   <div class="bar-in">
-    <div class="tot"><small>Total pembayaran</small><b id="total">Rp 0</b></div>
+    <div class="tot"><small>Total</small><b id="total">Rp 0</b></div>
     <button type="button" id="btnRekap">Rekap</button>
   </div>
 </div>
