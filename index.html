@@ -56,6 +56,12 @@
   .sum b { font-weight: 600; }
   .sum small { display: block; color: var(--muted); font-size: 13px; margin-top: 2px; }
   .sum button { flex: none; height: 34px; padding: 0 14px; font-size: 13px; }
+  .chk { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+  .chk input { width: 22px; height: 22px; flex: none; accent-color: var(--accent); }
+  .chk label { margin: 0; font-size: 15px; color: var(--ink); cursor: pointer; }
+  .chk small { color: var(--muted); font-size: 13px; }
+  .tiketrow { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0 2px; margin-top: 4px; border-top: 1px solid var(--tint); color: var(--accent); }
+  .tiketrow span:last-child { font-weight: 500; white-space: nowrap; }
   .hint { margin-top: 6px; font-size: 13px; color: var(--muted); }
   .hint b { color: var(--accent); font-weight: 600; }
   .list { margin: 0; padding: 0; list-style: none; }
@@ -105,7 +111,7 @@
       <div>
         <label for="tempat">Kolam</label>
         <select id="tempat">
-          <option value="">Pilih Kolam</option>
+          <option value="">Pilih kolam</option>
           <option>Sumberbeling</option><option>NK Cafe</option>
           <option>Manali Hill</option><option>Langlang Waterplay</option>
           <option>Kostrad</option>
@@ -117,9 +123,13 @@
       </div>
     </div>
     <label for="coach1">Coach 1</label>
-    <input type="text" id="coach1" placeholder="Nama coach 1" autocomplete="off">
-    <label for="coach2">Coach 2</label>
-    <input type="text" id="coach2" placeholder="Nama coach 2" autocomplete="off">
+    <input type="text" id="coach1" placeholder="Contoh: Eka" autocomplete="off">
+    <label for="coach2">Coach 2 (boleh kosong)</label>
+    <input type="text" id="coach2" placeholder="Kosongkan jika hanya 1 coach" autocomplete="off">
+    <div class="chk" id="tiketWrap" hidden>
+      <input type="checkbox" id="tiket">
+      <label for="tiket">Tiket Coach <small>(-Rp 5.000 per coach)</small></label>
+    </div>
     <div class="hint" id="hintSetup"></div>
     <button type="button" class="full" id="btnKunci">Simpan</button>
   </div>
@@ -138,27 +148,27 @@
   <div class="msg err" id="err"></div>
 
   <div class="card" id="addCard" hidden>
-    <h2>Tambah Peserta <span id="hint"></span></h2>
+    <h2>Tambah peserta <span id="hint"></span></h2>
     <div class="row">
-      <input type="text" id="nama" placeholder="Nama Peserta" autocomplete="off">
-      <button type="button" class="add" id="btnTambah" aria-label="Tambah Peserta">+</button>
+      <input type="text" id="nama" placeholder="Nama peserta" autocomplete="off">
+      <button type="button" class="add" id="btnTambah" aria-label="Tambah peserta">+</button>
     </div>
   </div>
 
   <div class="card">
     <h2>Peserta <span id="jumlah"></span></h2>
     <ul class="list" id="daftar"></ul>
+    <div class="tiketrow" id="tiketRow" hidden><span id="tiketLbl"></span><span id="tiketVal"></span></div>
   </div>
 
   <div class="card">
     <h2>Pembagian</h2>
     <table>
       <tr><td>Kas DTR (20%)</td><td id="rDTR"></td></tr>
-      <tr><td>Sisa 80%</td><td id="rSisa80"></td></tr>
-      <tr class="sub"><td>Kas Kolam (10% dari 80%)</td><td id="rKolam"></td></tr>
-      <tr class="sub"><td>Untuk coach</td><td id="rBagi"></td></tr>
+      <tr><td>Kas Kolam (10% dari 80%)</td><td id="rKolam"></td></tr>
+      <tr><td>Sisa untuk coach</td><td id="rBagi"></td></tr>
       <tr><td id="lEka">Coach 1 (70%)</td><td id="rEka"></td></tr>
-      <tr><td id="lLain">Coach 2 (30%)</td><td id="rLain"></td></tr>
+      <tr id="trLain"><td id="lLain">Coach 2 (30%)</td><td id="rLain"></td></tr>
     </table>
   </div>
 
@@ -170,7 +180,7 @@
     <button type="button" class="full" id="btnDownload">Download</button>
   </div>
 
-  <button type="button" class="linkbtn" id="btnReset">Kosongkan Daftar Peserta</button>
+  <button type="button" class="linkbtn" id="btnReset">Kosongkan Data Peserta</button>
 </div>
 
 <div class="bar">
@@ -188,6 +198,7 @@
     'Langlang Waterplay': 20000,
     'Kostrad': 20000
   };
+  var TIKET = 5000;
   var KEY = 'dtr_state_v2';
   // S.sesi = pertemuan yang sudah dikunci (tempat, tanggal, coach1, coach2)
   var S = { sesi: null, editing: false, peserta: [] };
@@ -195,6 +206,10 @@
   var $ = function (id) { return document.getElementById(id); };
 
   function rp(n) { return 'Rp ' + Math.round(n).toLocaleString('id-ID'); }
+  function fmtCoach(n) {
+    n = String(n || '').trim().replace(/^bu\s+/i, '').trim();
+    return n ? 'Bu ' + n : '';
+  }
   function harga() { return S.sesi ? (HARGA[S.sesi.tempat] || 0) : 0; }
   function simpan() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
   function showMsg(el, text, isErr) { el.textContent = text; el.className = 'msg show' + (isErr ? ' err' : ''); }
@@ -207,10 +222,14 @@
   }
 
   function hitung() {
-    var total = S.peserta.length * harga();
+    var gross = S.peserta.length * harga();
+    var dua = S.sesi ? !!S.sesi.coach2 : true;
+    var jml = dua ? 2 : 1;
+    var tiket = (S.sesi && S.sesi.tiket) ? TIKET * jml : 0;
+    var total = Math.max(0, gross - tiket);
     var sisa80 = total * 0.80, kasKolam = sisa80 * 0.10, bagi = sisa80 - kasKolam;
-    return { total: total, kasDTR: total * 0.20, sisa80: sisa80, kasKolam: kasKolam,
-             bagi: bagi, eka: bagi * 0.70, lainnya: bagi * 0.30 };
+    return { dua: dua, jml: jml, gross: gross, tiket: tiket, total: total, kasDTR: total * 0.20, sisa80: sisa80,
+             kasKolam: kasKolam, bagi: bagi, eka: dua ? bagi * 0.70 : bagi, lainnya: dua ? bagi * 0.30 : 0 };
   }
 
   function render() {
@@ -222,10 +241,10 @@
     if (S.sesi) {
       $('sTempat').textContent = S.sesi.tempat;
       $('sTanggal').textContent = formatTanggal(S.sesi.tanggal);
-      $('sCoach').textContent = 'Coach 1: ' + S.sesi.coach1 + ' (70%) · Coach 2: ' + S.sesi.coach2 + ' (30%)';
+      $('sCoach').textContent = (S.sesi.coach2 ? 'Coach 1: ' + S.sesi.coach1 + ' · Coach 2: ' + S.sesi.coach2 : 'Coach: ' + S.sesi.coach1) + (S.sesi.tiket ? ' · Tiket Coach' : '');
       $('hint').textContent = rp(harga()) + ' / peserta';
-      $('lEka').textContent = S.sesi.coach1 + ' (70%)';
-      $('lLain').textContent = S.sesi.coach2 + ' (30%)';
+      $('lEka').textContent = S.sesi.coach1 + (S.sesi.coach2 ? ' (70%)' : ' (100%)');
+      $('lLain').textContent = S.sesi.coach2 ? S.sesi.coach2 + ' (30%)' : '';
     } else {
       $('lEka').textContent = 'Coach 1 (70%)';
       $('lLain').textContent = 'Coach 2 (30%)';
@@ -248,8 +267,14 @@
     $('jumlah').textContent = S.peserta.length ? S.peserta.length + ' orang' : '';
 
     var h = hitung();
+    $('trLain').hidden = !h.dua;
+    $('tiketRow').hidden = !h.tiket;
+    if (h.tiket) {
+      $('tiketLbl').textContent = 'Tiket Coach (' + h.jml + ' × ' + rp(TIKET) + ')';
+      $('tiketVal').textContent = '-' + rp(h.tiket);
+    }
     $('total').textContent = rp(h.total);
-    $('rDTR').textContent = rp(h.kasDTR); $('rSisa80').textContent = rp(h.sisa80);
+    $('rDTR').textContent = rp(h.kasDTR);
     $('rKolam').textContent = rp(h.kasKolam); $('rBagi').textContent = rp(h.bagi);
     $('rEka').textContent = rp(h.eka); $('rLain').textContent = rp(h.lainnya);
     simpan();
@@ -259,25 +284,28 @@
   $('tempat').addEventListener('change', function () {
     var h = HARGA[this.value];
     $('hintSetup').textContent = h ? 'Harga per peserta: ' + rp(h) : '';
+    var sb = this.value === 'Sumberbeling';
+    $('tiketWrap').hidden = !sb;
+    if (!sb) $('tiket').checked = false;
   });
 
   $('btnKunci').onclick = function () {
     var tempat = $('tempat').value, tanggal = $('tanggal').value;
-    var c1 = $('coach1').value.trim(), c2 = $('coach2').value.trim();
+    var c1 = fmtCoach($('coach1').value), c2 = fmtCoach($('coach2').value);
     var err = $('err');
-    if (!tempat) { showMsg(err, 'Pilih tempat dulu.', true); $('tempat').focus(); return; }
+    if (!tempat) { showMsg(err, 'Pilih kolam dulu.', true); $('tempat').focus(); return; }
     if (!tanggal) { showMsg(err, 'Isi tanggal dulu.', true); $('tanggal').focus(); return; }
     if (!c1) { showMsg(err, 'Nama coach 1 belum diisi.', true); $('coach1').focus(); return; }
-    if (!c2) { showMsg(err, 'Nama coach 2 belum diisi.', true); $('coach2').focus(); return; }
     clearErr();
 
     var prev = S.sesi;
     var berubah = prev && (prev.tempat !== tempat || prev.tanggal !== tanggal);
-    if (berubah && S.peserta.length && confirm('Tempat atau tanggal berubah. Kosongkan daftar peserta sebelumnya?')) {
+    if (berubah && S.peserta.length && confirm('Kolam atau tanggal berubah. Kosongkan data peserta sebelumnya?')) {
       S.peserta = [];
       $('preview').style.display = 'none';
     }
-    S.sesi = { tempat: tempat, tanggal: tanggal, coach1: c1, coach2: c2 };
+    S.sesi = { tempat: tempat, tanggal: tanggal, coach1: c1, coach2: c2,
+               tiket: tempat === 'Sumberbeling' && $('tiket').checked };
     S.editing = false;
     render();
     $('nama').focus();
@@ -286,9 +314,10 @@
   $('btnUbah').onclick = function () {
     $('tempat').value = S.sesi.tempat;
     $('tanggal').value = S.sesi.tanggal;
-    $('coach1').value = S.sesi.coach1;
-    $('coach2').value = S.sesi.coach2;
+    $('coach1').value = S.sesi.coach1.replace(/^Bu\s+/i, '');
+    $('coach2').value = S.sesi.coach2.replace(/^Bu\s+/i, '');
     $('tempat').dispatchEvent(new Event('change'));
+    $('tiket').checked = !!S.sesi.tiket;
     S.editing = true;
     render();
   };
@@ -296,7 +325,7 @@
   function tambah() {
     var nama = $('nama').value.trim();
     var err = $('err');
-    if (!S.sesi || S.editing) { showMsg(err, 'Simpan dan kunci data pertemuan dulu.', true); return; }
+    if (!S.sesi || S.editing) { showMsg(err, 'Simpan data pertemuan dulu.', true); return; }
     if (!nama) { showMsg(err, 'Nama peserta belum diisi.', true); $('nama').focus(); return; }
     clearErr();
     S.peserta.push({ nama: nama });
@@ -307,7 +336,7 @@
   $('nama').addEventListener('keydown', function (e) { if (e.key === 'Enter') tambah(); });
 
   $('btnReset').onclick = function () {
-    if (!confirm('Kosongkan daftar peserta?')) return;
+    if (!confirm('Kosongkan data peserta?')) return;
     S.peserta = []; render();
     $('preview').style.display = 'none'; $('msgRekap').className = 'msg';
   };
@@ -340,7 +369,12 @@
   function gambar() {
     var s = S.sesi, h = hitung(), n = S.peserta.length;
     var W = 900, pad = 56, rowH = 50, scale = 2;
-    var tinggi = 1010 + n * rowH;
+    var info = [['Kolam', s.tempat], ['Tanggal', formatTanggal(s.tanggal)]];
+    if (h.dua) { info.push(['Coach 1', s.coach1]); info.push(['Coach 2', s.coach2]); }
+    else info.push(['Coach', s.coach1]);
+    var off = (4 - info.length) * 38;
+    var ex = h.tiket ? rowH : 0;
+    var tinggi = 960 + n * rowH + ex - off - (h.dua ? 0 : rowH);
     var c = document.createElement('canvas');
     c.width = W * scale; c.height = tinggi * scale;
     var ctx = c.getContext('2d'); ctx.scale(scale, scale);
@@ -360,20 +394,18 @@
     ctx.beginPath(); ctx.moveTo(pad, 196); ctx.lineTo(W - pad, 196); ctx.stroke();
 
     // Info pertemuan
-    var info = [['Tempat', s.tempat], ['Tanggal', formatTanggal(s.tanggal)],
-                ['Coach 1 (70%)', s.coach1], ['Coach 2 (30%)', s.coach2]];
     info.forEach(function (r, i) {
       var y = 236 + i * 38;
       ctx.fillStyle = MUTED; ctx.font = '400 22px ' + sans; ctx.fillText(r[0], pad, y);
       ctx.fillStyle = INK; ctx.font = '500 24px ' + sans;
       ctx.fillText(muat(ctx, r[1], W - pad * 2 - 200), pad + 200, y);
     });
-    ctx.strokeStyle = LINE; ctx.beginPath(); ctx.moveTo(pad, 380); ctx.lineTo(W - pad, 380); ctx.stroke();
+    ctx.strokeStyle = LINE; ctx.beginPath(); ctx.moveTo(pad, 380 - off); ctx.lineTo(W - pad, 380 - off); ctx.stroke();
 
     // Daftar peserta
     ctx.fillStyle = ACC; ctx.font = '700 32px ' + serif;
-    ctx.fillText('Daftar peserta (' + n + ' orang)', pad, 432);
-    var top = 446;
+    ctx.fillText('Daftar Peserta (' + n + ' orang)', pad, 432 - off);
+    var top = 446 - off;
     S.peserta.forEach(function (p, i) {
       var cy = top + i * rowH + 33;
       ctx.textAlign = 'left'; ctx.fillStyle = INK; ctx.font = '400 24px ' + sans;
@@ -388,11 +420,21 @@
     ctx.textAlign = 'left';
 
     // Total
-    var boxTop = top + n * rowH + 30;
+    if (h.tiket) {
+      var ty = top + n * rowH;
+      ctx.strokeStyle = TINT; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(pad, ty); ctx.lineTo(W - pad, ty); ctx.stroke();
+      ctx.textAlign = 'left'; ctx.fillStyle = ACC; ctx.font = '400 24px ' + sans;
+      ctx.fillText('Tiket Coach (' + h.jml + ' × ' + rp(TIKET) + ')', pad, ty + 33);
+      ctx.textAlign = 'right'; ctx.font = '500 24px ' + sans;
+      ctx.fillText('-' + rp(h.tiket), W - pad, ty + 33);
+      ctx.textAlign = 'left';
+    }
+    var boxTop = top + n * rowH + ex + 30;
     roundRect(ctx, pad - 16, boxTop, W - 2 * (pad - 16), 68, 14);
     ctx.fillStyle = TINT; ctx.fill();
     ctx.fillStyle = INK; ctx.font = '600 26px ' + sans;
-    ctx.fillText('Total pembayaran', pad, boxTop + 44);
+    ctx.fillText('Total', pad, boxTop + 44);
     ctx.textAlign = 'right'; ctx.fillStyle = ACC; ctx.font = '700 34px ' + serif;
     ctx.fillText(rp(h.total), W - pad, boxTop + 45);
     ctx.textAlign = 'left';
@@ -400,16 +442,15 @@
     // Pembagian hasil
     var head2 = boxTop + 68 + 64;
     ctx.fillStyle = ACC; ctx.font = '700 32px ' + serif;
-    ctx.fillText('Pembagian hasil', pad, head2);
+    ctx.fillText('Pembagian', pad, head2);
     var top2 = head2 + 16;
     var baris = [
       ['Kas DTR (20% dari total)', h.kasDTR, 0],
-      ['Sisa 80% dari total', h.sisa80, 0],
-      ['Kas Kolam (10% dari 80%)', h.kasKolam, 1],
-      ['Sisa untuk coach (90% dari 80%)', h.bagi, 1],
-      [s.coach1 + ' (70%)', h.eka, 0],
-      [s.coach2 + ' (30%)', h.lainnya, 0]
+      ['Kas Kolam (10% dari 80%)', h.kasKolam, 0],
+      ['Sisa untuk coach (90% dari 80%)', h.bagi, 0],
+      [s.coach1 + (h.dua ? ' (70%)' : ' (100%)'), h.eka, 0]
     ];
+    if (h.dua) baris.push([s.coach2 + ' (30%)', h.lainnya, 0]);
     baris.forEach(function (b, i) {
       var cy = top2 + i * rowH + 33, sub = b[2];
       ctx.textAlign = 'left';
@@ -431,7 +472,7 @@
 
   $('btnRekap').onclick = function () {
     var err = $('err'), msg = $('msgRekap');
-    if (!S.sesi || S.editing) { showMsg(err, 'Simpan dan kunci data pertemuan dulu.', true); window.scrollTo(0, 0); return; }
+    if (!S.sesi || S.editing) { showMsg(err, 'Simpan data pertemuan dulu.', true); window.scrollTo(0, 0); return; }
     if (!S.peserta.length) { showMsg(err, 'Belum ada peserta yang diinput.', true); return; }
     clearErr();
     var btn = $('btnRekap'); btn.disabled = true; btn.textContent = '...';
@@ -440,7 +481,7 @@
       $('imgRekap').src = lastDataUrl;
       $('preview').style.display = 'block';
       $('preview').scrollIntoView({ behavior: 'smooth' });
-      showMsg(msg, 'Rekap selesai. Tekan Download gambar untuk menyimpan.', false);
+      showMsg(msg, 'Rekap selesai. Tekan Download untuk menyimpan.', false);
     }).catch(function () {
       showMsg(err, 'Gagal membuat gambar. Coba lagi.', true);
     }).then(function () { btn.disabled = false; btn.textContent = 'Rekap'; });
@@ -463,6 +504,11 @@
       if (st && Array.isArray(st.peserta)) {
         S.peserta = st.peserta;
         S.sesi = st.sesi || null;
+        if (S.sesi) {
+          S.sesi.coach1 = fmtCoach(S.sesi.coach1);
+          S.sesi.coach2 = fmtCoach(S.sesi.coach2);
+          S.sesi.tiket = !!S.sesi.tiket;
+        }
         S.editing = false;
       }
     } catch (e) {}
