@@ -4,98 +4,146 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Financial Report: Coach Eka</title>
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --p50: #fff5f8; --p100: #ffe3ec; --p200: #ffc8da;
-    --p400: #f472a8; --p500: #ec4899; --p600: #d6307f;
-    --ink: #4a1d36; --muted: #8a5a72;
+    --bg: #fffafb; --line: #f4d6e2; --tint: #fde9f1;
+    --accent: #cf3f7b; --ink: #3b1f2b; --muted: #8a6275;
+    --serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    --sans: "Jost", "Segoe UI", "Trebuchet MS", sans-serif;
   }
   * { box-sizing: border-box; }
   body {
-    margin: 0; padding: 10px 10px 92px;
-    background: var(--p50); color: var(--ink);
-    font-family: "Trebuchet MS", "Segoe UI", Verdana, sans-serif;
-    font-size: 15px; line-height: 1.3;
+    margin: 0; padding: 14px 12px 96px;
+    background: var(--bg); color: var(--ink);
+    font-family: var(--sans); font-size: 15px; line-height: 1.35;
   }
   .wrap { max-width: 520px; margin: 0 auto; }
-  h1 { font-size: 19px; margin: 2px 0 8px; color: var(--p600); }
-  .card {
-    background: #fff; border: 2px solid var(--p200);
-    border-radius: 14px; padding: 10px; margin-bottom: 10px;
+  header { display: flex; align-items: center; gap: 12px; padding: 4px 2px 14px; }
+  .logo { width: 58px; height: 58px; flex: none; }
+  .brand { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--accent); font-weight: 500; }
+  h1 { font-family: var(--serif); font-size: 25px; line-height: 1.1; margin: 2px 0 0; font-weight: 700; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 12px; margin-bottom: 12px; }
+  .card h2 {
+    font-family: var(--serif); font-size: 19px; font-weight: 700; margin: 0 0 8px;
+    color: var(--accent); display: flex; justify-content: space-between; align-items: baseline;
   }
-  .card h2 { font-size: 15px; margin: 0 0 6px; color: var(--p600); display: flex; justify-content: space-between; }
-  .card h2 span { color: var(--muted); font-weight: normal; }
+  .card h2 span { font-family: var(--sans); font-size: 13px; font-weight: 400; color: var(--muted); }
+  label { display: block; font-size: 12px; color: var(--muted); margin: 8px 0 3px; letter-spacing: .02em; }
+  label:first-of-type { margin-top: 0; }
   input, select {
-    width: 100%; min-width: 0; font: inherit; font-size: 16px; color: var(--ink);
-    padding: 9px 10px; height: 44px;
-    border: 2px solid var(--p200); border-radius: 10px; background: #fff;
+    width: 100%; min-width: 0; height: 44px; padding: 8px 12px;
+    font: inherit; font-size: 16px; color: var(--ink);
+    background: #fff; border: 1px solid var(--line); border-radius: 10px;
   }
-  input:focus, select:focus, button:focus-visible { outline: 3px solid var(--p400); outline-offset: 1px; }
-  .row { display: flex; gap: 6px; }
-  .row + .row { margin-top: 6px; }
-  .add { flex: 0 0 48px; height: 44px; padding: 0; font-size: 26px; line-height: 1; }
+  input::placeholder { color: #c9a9b8; }
+  input:focus, select:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .row { display: flex; gap: 8px; }
+  .row > div { flex: 1; min-width: 0; }
   button {
-    font: inherit; font-weight: bold; cursor: pointer; border: 0;
-    border-radius: 10px; background: var(--p500); color: #fff;
+    font: inherit; font-weight: 500; cursor: pointer; border: 0; border-radius: 10px;
+    background: var(--accent); color: #fff;
   }
-  button:active { background: var(--p600); }
+  button:active { opacity: .85; }
+  .full { width: 100%; height: 46px; margin-top: 12px; font-size: 16px; }
+  .add { flex: 0 0 48px; height: 44px; font-size: 24px; line-height: 1; padding: 0; }
+  .ghost { background: var(--tint); color: var(--accent); }
+  .linkbtn { background: none; color: var(--muted); font-size: 13px; text-decoration: underline; padding: 6px; width: 100%; font-weight: 400; }
+  .sum { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .sum b { font-weight: 600; }
+  .sum small { display: block; color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .sum button { flex: none; height: 34px; padding: 0 14px; font-size: 13px; }
+  .hint { margin-top: 6px; font-size: 13px; color: var(--muted); }
+  .hint b { color: var(--accent); font-weight: 600; }
   .list { margin: 0; padding: 0; list-style: none; }
-  .list li { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px dashed var(--p200); }
+  .list li { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--tint); }
   .list li:last-child { border-bottom: 0; }
   .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .rp { font-weight: bold; white-space: nowrap; }
-  .del { width: 30px; height: 30px; padding: 0; background: var(--p100); color: var(--p600); font-size: 14px; }
-  .hint { margin-top: 6px; font-size: 13px; color: var(--muted); }
-  .hint b { color: var(--p600); }
+  .rp { white-space: nowrap; font-weight: 500; }
+  .del { width: 30px; height: 30px; padding: 0; background: var(--tint); color: var(--accent); font-size: 13px; }
   .empty { color: var(--muted); text-align: center; padding: 8px 0; font-size: 14px; }
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  td { padding: 5px 0; border-bottom: 1px dashed var(--p200); }
+  td { padding: 6px 0; border-bottom: 1px solid var(--tint); }
   tr:last-child td { border-bottom: 0; }
-  td:last-child { text-align: right; font-weight: bold; white-space: nowrap; }
-  tr.sub td { color: var(--muted); padding-left: 12px; font-size: 13px; font-weight: normal; }
-  tr.sub td:last-child { font-weight: normal; }
+  td:last-child { text-align: right; font-weight: 500; white-space: nowrap; padding-left: 10px; }
+  tr.sub td { color: var(--muted); padding-left: 12px; font-size: 13px; }
+  tr.sub td:last-child { padding-left: 10px; font-weight: 400; }
   .bar {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 5;
-    background: #fff; border-top: 2px solid var(--p200);
-    padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; background: #fff; border-top: 1px solid var(--line);
+    padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px));
   }
-  .bar-in { max-width: 520px; margin: 0 auto; display: flex; align-items: center; gap: 10px; }
-  .tot { flex: 1; line-height: 1.15; }
-  .tot small { color: var(--muted); font-size: 12px; display: block; }
-  .tot b { color: var(--p600); font-size: 19px; }
-  #btnRekap { flex: 0 0 auto; height: 46px; padding: 0 18px; font-size: 16px; }
-  #btnRekap:disabled { opacity: .5; }
-  .link { background: none; color: var(--muted); font-weight: normal; text-decoration: underline; padding: 4px; font-size: 13px; width: 100%; }
-  .msg { display: none; margin-bottom: 10px; padding: 9px 10px; border-radius: 10px; background: var(--p100); font-size: 14px; }
+  .bar-in { max-width: 520px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+  .tot { flex: 1; line-height: 1.1; }
+  .tot small { display: block; color: var(--muted); font-size: 12px; }
+  .tot b { font-family: var(--serif); font-size: 24px; color: var(--accent); font-weight: 700; }
+  #btnRekap { flex: none; height: 46px; padding: 0 24px; font-size: 16px; }
+  .msg { display: none; margin-bottom: 12px; padding: 9px 12px; border-radius: 10px; background: var(--tint); font-size: 14px; }
   .msg.show { display: block; }
-  .msg.err { background: #ffe0e0; color: #9b1c1c; }
+  .msg.err { background: #ffe6e6; color: #9b1c1c; }
   #preview { display: none; text-align: center; }
-  #preview img { max-width: 100%; border: 2px solid var(--p200); border-radius: 10px; }
-  #btnDownload { width: 100%; height: 46px; margin-top: 8px; font-size: 16px; }
+  #preview img { max-width: 100%; border: 1px solid var(--line); border-radius: 10px; }
+  [hidden] { display: none !important; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Financial Report: Coach Eka</h1>
+  <header>
+    <img class="logo" src="logo.png" alt="Logo Diva Tirta Renang">
+    <div>
+      <div class="brand">Diva Tirta Renang</div>
+      <h1>Financial Report: Coach Eka</h1>
+    </div>
+  </header>
 
-  <div class="card">
+  <!-- Pertemuan belum dikunci -->
+  <div class="card" id="setup">
+    <h2>Pertemuan</h2>
     <div class="row">
-      <select id="tempat" aria-label="Tempat">
-        <option value="">Pilih tempat</option>
-        <option>Sumberbeling</option><option>NK Cafe</option>
-        <option>Manali Hill</option><option>Langlang Waterplay</option>
-        <option>Kostrad</option>
-      </select>
-      <input type="date" id="tanggal" aria-label="Tanggal">
+      <div>
+        <label for="tempat">Tempat</label>
+        <select id="tempat">
+          <option value="">Pilih tempat</option>
+          <option>Sumberbeling</option><option>NK Cafe</option>
+          <option>Manali Hill</option><option>Langlang Waterplay</option>
+          <option>Kostrad</option>
+        </select>
+      </div>
+      <div>
+        <label for="tanggal">Tanggal</label>
+        <input type="date" id="tanggal">
+      </div>
     </div>
-    <div class="row">
-      <input type="text" id="nama" placeholder="Nama peserta" autocomplete="off" style="flex:1">
-      <button id="btnTambah" type="button" class="add" aria-label="Tambah peserta">+</button>
+    <label for="coach1">Coach 1 (hasil 70%)</label>
+    <input type="text" id="coach1" placeholder="Nama coach 1" autocomplete="off">
+    <label for="coach2">Coach 2 (hasil 30%)</label>
+    <input type="text" id="coach2" placeholder="Nama coach 2" autocomplete="off">
+    <div class="hint" id="hintSetup"></div>
+    <button type="button" class="full" id="btnKunci">Simpan dan kunci</button>
+  </div>
+
+  <!-- Pertemuan sudah dikunci -->
+  <div class="card" id="locked" hidden>
+    <div class="sum">
+      <div>
+        <b id="sTempat"></b> · <span id="sTanggal"></span>
+        <small id="sCoach"></small>
+      </div>
+      <button type="button" class="ghost" id="btnUbah">Ubah</button>
     </div>
-    <div class="hint" id="hint">Pilih tempat untuk melihat harga.</div>
   </div>
 
   <div class="msg err" id="err"></div>
+
+  <div class="card" id="addCard" hidden>
+    <h2>Tambah peserta <span id="hint"></span></h2>
+    <div class="row">
+      <input type="text" id="nama" placeholder="Nama peserta" autocomplete="off">
+      <button type="button" class="add" id="btnTambah" aria-label="Tambah peserta">+</button>
+    </div>
+  </div>
 
   <div class="card">
     <h2>Peserta <span id="jumlah"></span></h2>
@@ -109,8 +157,8 @@
       <tr><td>Sisa 80%</td><td id="rSisa80"></td></tr>
       <tr class="sub"><td>Kas Kolam (10% dari 80%)</td><td id="rKolam"></td></tr>
       <tr class="sub"><td>Untuk coach</td><td id="rBagi"></td></tr>
-      <tr><td>Coach Eka (70%)</td><td id="rEka"></td></tr>
-      <tr><td>Coach Lainnya (30%)</td><td id="rLain"></td></tr>
+      <tr><td id="lEka">Coach 1 (70%)</td><td id="rEka"></td></tr>
+      <tr><td id="lLain">Coach 2 (30%)</td><td id="rLain"></td></tr>
     </table>
   </div>
 
@@ -119,25 +167,20 @@
   <div class="card" id="preview">
     <h2>Hasil rekap</h2>
     <img id="imgRekap" alt="Gambar rekap keuangan">
-    <button id="btnDownload" type="button">Download gambar</button>
+    <button type="button" class="full" id="btnDownload">Download gambar</button>
   </div>
 
-  <button id="btnReset" type="button" class="link">Kosongkan semua data</button>
+  <button type="button" class="linkbtn" id="btnReset">Kosongkan daftar peserta</button>
 </div>
 
 <div class="bar">
   <div class="bar-in">
     <div class="tot"><small>Total pembayaran</small><b id="total">Rp 0</b></div>
-    <button id="btnRekap" type="button">Rekap</button>
+    <button type="button" id="btnRekap">Rekap</button>
   </div>
 </div>
 
 <script>
-  var peserta = [];
-  var lastDataUrl = '';
-  var $ = function (id) { return document.getElementById(id); };
-  function rp(n) { return 'Rp ' + Math.round(n).toLocaleString('id-ID'); }
-
   var HARGA = {
     'Sumberbeling': 25000,
     'NK Cafe': 15000,
@@ -145,39 +188,65 @@
     'Langlang Waterplay': 20000,
     'Kostrad': 20000
   };
-  function harga() { return HARGA[$('tempat').value] || 0; }
+  var KEY = 'dtr_state_v2';
+  // S.sesi = pertemuan yang sudah dikunci (tempat, tanggal, coach1, coach2)
+  var S = { sesi: null, editing: false, peserta: [] };
+  var lastDataUrl = '';
+  var $ = function (id) { return document.getElementById(id); };
+
+  function rp(n) { return 'Rp ' + Math.round(n).toLocaleString('id-ID'); }
+  function harga() { return S.sesi ? (HARGA[S.sesi.tempat] || 0) : 0; }
+  function simpan() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+  function showMsg(el, text, isErr) { el.textContent = text; el.className = 'msg show' + (isErr ? ' err' : ''); }
+  function clearErr() { $('err').className = 'msg err'; }
+
+  function formatTanggal(iso) {
+    var b = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    var p = iso.split('-');
+    return Number(p[2]) + ' ' + b[Number(p[1]) - 1] + ' ' + p[0];
+  }
 
   function hitung() {
-    var total = peserta.length * harga();
+    var total = S.peserta.length * harga();
     var sisa80 = total * 0.80, kasKolam = sisa80 * 0.10, bagi = sisa80 - kasKolam;
     return { total: total, kasDTR: total * 0.20, sisa80: sisa80, kasKolam: kasKolam,
              bagi: bagi, eka: bagi * 0.70, lainnya: bagi * 0.30 };
   }
 
-  function simpan() {
-    try {
-      localStorage.setItem('dtr_state', JSON.stringify({
-        peserta: peserta, tempat: $('tempat').value, tanggal: $('tanggal').value
-      }));
-    } catch (e) {}
-  }
+  function render() {
+    var showSetup = !S.sesi || S.editing;
+    $('setup').hidden = !showSetup;
+    $('locked').hidden = showSetup;
+    $('addCard').hidden = showSetup;
 
-  function tampil() {
+    if (S.sesi) {
+      $('sTempat').textContent = S.sesi.tempat;
+      $('sTanggal').textContent = formatTanggal(S.sesi.tanggal);
+      $('sCoach').textContent = 'Coach 1: ' + S.sesi.coach1 + ' (70%) · Coach 2: ' + S.sesi.coach2 + ' (30%)';
+      $('hint').textContent = rp(harga()) + ' / peserta';
+      $('lEka').textContent = S.sesi.coach1 + ' (70%)';
+      $('lLain').textContent = S.sesi.coach2 + ' (30%)';
+    } else {
+      $('lEka').textContent = 'Coach 1 (70%)';
+      $('lLain').textContent = 'Coach 2 (30%)';
+    }
+
     var ul = $('daftar'); ul.innerHTML = '';
-    if (!peserta.length) {
+    if (!S.peserta.length) {
       var e = document.createElement('li'); e.className = 'empty';
       e.textContent = 'Belum ada peserta.'; ul.appendChild(e);
     }
-    peserta.forEach(function (p, i) {
+    S.peserta.forEach(function (p, i) {
       var li = document.createElement('li');
       var nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = (i + 1) + '. ' + p.nama;
       var r = document.createElement('span'); r.className = 'rp'; r.textContent = rp(harga());
       var d = document.createElement('button'); d.type = 'button'; d.className = 'del'; d.textContent = '✕';
       d.setAttribute('aria-label', 'Hapus ' + p.nama);
-      d.onclick = function () { peserta.splice(i, 1); tampil(); };
+      d.onclick = function () { S.peserta.splice(i, 1); render(); };
       li.appendChild(nm); li.appendChild(r); li.appendChild(d); ul.appendChild(li);
     });
-    $('jumlah').textContent = peserta.length ? peserta.length + ' orang' : '';
+    $('jumlah').textContent = S.peserta.length ? S.peserta.length + ' orang' : '';
+
     var h = hitung();
     $('total').textContent = rp(h.total);
     $('rDTR').textContent = rp(h.kasDTR); $('rSisa80').textContent = rp(h.sisa80);
@@ -186,38 +255,75 @@
     simpan();
   }
 
-  function showMsg(el, text, isErr) { el.textContent = text; el.className = 'msg show' + (isErr ? ' err' : ''); }
-
+  // Tampilkan harga saat tempat dipilih
   $('tempat').addEventListener('change', function () {
-    $('hint').innerHTML = harga()
-      ? 'Harga per peserta: <b>' + rp(harga()) + '</b>'
-      : 'Pilih tempat untuk melihat harga.';
-    tampil();
+    var h = HARGA[this.value];
+    $('hintSetup').textContent = h ? 'Harga per peserta: ' + rp(h) : '';
   });
+
+  $('btnKunci').onclick = function () {
+    var tempat = $('tempat').value, tanggal = $('tanggal').value;
+    var c1 = $('coach1').value.trim(), c2 = $('coach2').value.trim();
+    var err = $('err');
+    if (!tempat) { showMsg(err, 'Pilih tempat dulu.', true); $('tempat').focus(); return; }
+    if (!tanggal) { showMsg(err, 'Isi tanggal dulu.', true); $('tanggal').focus(); return; }
+    if (!c1) { showMsg(err, 'Nama coach 1 belum diisi.', true); $('coach1').focus(); return; }
+    if (!c2) { showMsg(err, 'Nama coach 2 belum diisi.', true); $('coach2').focus(); return; }
+    clearErr();
+
+    var prev = S.sesi;
+    var berubah = prev && (prev.tempat !== tempat || prev.tanggal !== tanggal);
+    if (berubah && S.peserta.length && confirm('Tempat atau tanggal berubah. Kosongkan daftar peserta sebelumnya?')) {
+      S.peserta = [];
+      $('preview').style.display = 'none';
+    }
+    S.sesi = { tempat: tempat, tanggal: tanggal, coach1: c1, coach2: c2 };
+    S.editing = false;
+    render();
+    $('nama').focus();
+  };
+
+  $('btnUbah').onclick = function () {
+    $('tempat').value = S.sesi.tempat;
+    $('tanggal').value = S.sesi.tanggal;
+    $('coach1').value = S.sesi.coach1;
+    $('coach2').value = S.sesi.coach2;
+    $('tempat').dispatchEvent(new Event('change'));
+    S.editing = true;
+    render();
+  };
 
   function tambah() {
     var nama = $('nama').value.trim();
     var err = $('err');
-    if (!$('tempat').value) { showMsg(err, 'Pilih tempat dulu supaya harga terisi otomatis.', true); $('tempat').focus(); return; }
+    if (!S.sesi || S.editing) { showMsg(err, 'Simpan dan kunci data pertemuan dulu.', true); return; }
     if (!nama) { showMsg(err, 'Nama peserta belum diisi.', true); $('nama').focus(); return; }
-    err.className = 'msg err';
-    peserta.push({ nama: nama });
+    clearErr();
+    S.peserta.push({ nama: nama });
     $('nama').value = '';
-    tampil(); $('nama').focus();
+    render(); $('nama').focus();
   }
   $('btnTambah').onclick = tambah;
   $('nama').addEventListener('keydown', function (e) { if (e.key === 'Enter') tambah(); });
 
   $('btnReset').onclick = function () {
-    if (!confirm('Kosongkan semua data peserta?')) return;
-    peserta = []; tampil();
+    if (!confirm('Kosongkan daftar peserta?')) return;
+    S.peserta = []; render();
     $('preview').style.display = 'none'; $('msgRekap').className = 'msg';
   };
 
-  function formatTanggal(iso) {
-    var b = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-    var p = iso.split('-');
-    return Number(p[2]) + ' ' + b[Number(p[1]) - 1] + ' ' + p[0];
+  /* ---------- Gambar rekap ---------- */
+  var logoImg = new Image();
+  var logoReady = new Promise(function (res) { logoImg.onload = res; logoImg.onerror = res; });
+  logoImg.src = 'logo.png';
+
+  function fontsReady() {
+    if (!document.fonts || !document.fonts.load) return Promise.resolve();
+    return Promise.all([
+      document.fonts.load('700 38px "Cormorant Garamond"'),
+      document.fonts.load('400 22px "Jost"'),
+      document.fonts.load('500 22px "Jost"')
+    ]).catch(function () {});
   }
 
   function roundRect(ctx, x, y, w, h, r) {
@@ -226,126 +332,142 @@
     ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
   }
 
-  function gambar(tempat, tanggalTeks, h) {
-    var W = 900, pad = 48, rowH = 52;
-    var tinggi = 220 + 60 + peserta.length * rowH + 40 + 80 + 7 * 52 + 90;
-    var scale = 2;
+  function muat(ctx, text, maxW) {
+    while (ctx.measureText(text).width > maxW && text.length > 4) text = text.slice(0, -2);
+    return text;
+  }
+
+  function gambar() {
+    var s = S.sesi, h = hitung(), n = S.peserta.length;
+    var W = 900, pad = 56, rowH = 50, scale = 2;
+    var tinggi = 1010 + n * rowH;
     var c = document.createElement('canvas');
     c.width = W * scale; c.height = tinggi * scale;
     var ctx = c.getContext('2d'); ctx.scale(scale, scale);
-    var font = '"Trebuchet MS","Segoe UI",Verdana,sans-serif';
+    var serif = '"Cormorant Garamond", Georgia, serif';
+    var sans = '"Jost", "Segoe UI", sans-serif';
+    var INK = '#3b1f2b', MUTED = '#8a6275', ACC = '#cf3f7b', LINE = '#f4d6e2', TINT = '#fde9f1';
 
-    ctx.fillStyle = '#fff5f8'; ctx.fillRect(0, 0, W, tinggi);
-    ctx.fillStyle = '#ec4899'; ctx.fillRect(0, 0, W, 170);
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 38px ' + font; ctx.fillText('Financial Report: Coach Eka', pad, 72);
-    ctx.font = '24px ' + font;
-    ctx.fillText('Tempat: ' + tempat, pad, 115);
-    ctx.fillText('Tanggal: ' + tanggalTeks, pad, 150);
+    ctx.fillStyle = '#fffafb'; ctx.fillRect(0, 0, W, tinggi);
 
-    var y = 220;
-    ctx.fillStyle = '#d6307f'; ctx.font = 'bold 28px ' + font;
-    ctx.fillText('Daftar peserta (' + peserta.length + ' orang)', pad, y);
-    y += 24;
-    roundRect(ctx, pad - 16, y, W - 2 * (pad - 16), peserta.length * rowH + 20, 16);
-    ctx.fillStyle = '#fff'; ctx.fill(); ctx.strokeStyle = '#ffc8da'; ctx.lineWidth = 2; ctx.stroke();
-    y += 10;
-    peserta.forEach(function (p, i) {
-      var cy = y + i * rowH + 34;
-      ctx.fillStyle = '#4a1d36'; ctx.font = '24px ' + font; ctx.textAlign = 'left';
-      var nm = (i + 1) + '. ' + p.nama;
-      while (ctx.measureText(nm).width > 520 && nm.length > 4) nm = nm.slice(0, -2);
-      ctx.fillText(nm, pad, cy);
-      ctx.textAlign = 'right'; ctx.font = 'bold 24px ' + font;
+    // Header
+    if (logoImg.naturalWidth) ctx.drawImage(logoImg, pad, 40, 130, 130);
+    ctx.fillStyle = ACC; ctx.font = '500 20px ' + sans; ctx.textAlign = 'left';
+    ctx.fillText('DIVA TIRTA RENANG', pad + 160, 84);
+    ctx.fillStyle = INK; ctx.font = '700 38px ' + serif;
+    ctx.fillText('Financial Report: Coach Eka', pad + 160, 134);
+    ctx.strokeStyle = LINE; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(pad, 196); ctx.lineTo(W - pad, 196); ctx.stroke();
+
+    // Info pertemuan
+    var info = [['Tempat', s.tempat], ['Tanggal', formatTanggal(s.tanggal)],
+                ['Coach 1 (70%)', s.coach1], ['Coach 2 (30%)', s.coach2]];
+    info.forEach(function (r, i) {
+      var y = 236 + i * 38;
+      ctx.fillStyle = MUTED; ctx.font = '400 22px ' + sans; ctx.fillText(r[0], pad, y);
+      ctx.fillStyle = INK; ctx.font = '500 24px ' + sans;
+      ctx.fillText(muat(ctx, r[1], W - pad * 2 - 200), pad + 200, y);
+    });
+    ctx.strokeStyle = LINE; ctx.beginPath(); ctx.moveTo(pad, 380); ctx.lineTo(W - pad, 380); ctx.stroke();
+
+    // Daftar peserta
+    ctx.fillStyle = ACC; ctx.font = '700 32px ' + serif;
+    ctx.fillText('Daftar peserta (' + n + ' orang)', pad, 432);
+    var top = 446;
+    S.peserta.forEach(function (p, i) {
+      var cy = top + i * rowH + 33;
+      ctx.textAlign = 'left'; ctx.fillStyle = INK; ctx.font = '400 24px ' + sans;
+      ctx.fillText(muat(ctx, (i + 1) + '. ' + p.nama, 520), pad, cy);
+      ctx.textAlign = 'right'; ctx.font = '500 24px ' + sans;
       ctx.fillText(rp(harga()), W - pad, cy);
-      if (i < peserta.length - 1) {
-        ctx.strokeStyle = '#ffe3ec'; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.moveTo(pad, cy + 15); ctx.lineTo(W - pad, cy + 15); ctx.stroke();
+      if (i < n - 1) {
+        ctx.strokeStyle = TINT; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(pad, top + (i + 1) * rowH); ctx.lineTo(W - pad, top + (i + 1) * rowH); ctx.stroke();
       }
     });
     ctx.textAlign = 'left';
-    y += peserta.length * rowH + 10 + 40;
 
-    roundRect(ctx, pad - 16, y, W - 2 * (pad - 16), 64, 16);
-    ctx.fillStyle = '#ffe3ec'; ctx.fill();
-    ctx.fillStyle = '#4a1d36'; ctx.font = 'bold 28px ' + font;
-    ctx.fillText('Total pembayaran', pad, y + 41);
-    ctx.textAlign = 'right'; ctx.fillStyle = '#d6307f';
-    ctx.fillText(rp(h.total), W - pad, y + 41);
+    // Total
+    var boxTop = top + n * rowH + 30;
+    roundRect(ctx, pad - 16, boxTop, W - 2 * (pad - 16), 68, 14);
+    ctx.fillStyle = TINT; ctx.fill();
+    ctx.fillStyle = INK; ctx.font = '600 26px ' + sans;
+    ctx.fillText('Total pembayaran', pad, boxTop + 44);
+    ctx.textAlign = 'right'; ctx.fillStyle = ACC; ctx.font = '700 34px ' + serif;
+    ctx.fillText(rp(h.total), W - pad, boxTop + 45);
     ctx.textAlign = 'left';
-    y += 64 + 50;
 
-    ctx.fillStyle = '#d6307f'; ctx.font = 'bold 28px ' + font;
-    ctx.fillText('Pembagian hasil', pad, y);
-    y += 24;
+    // Pembagian hasil
+    var head2 = boxTop + 68 + 64;
+    ctx.fillStyle = ACC; ctx.font = '700 32px ' + serif;
+    ctx.fillText('Pembagian hasil', pad, head2);
+    var top2 = head2 + 16;
     var baris = [
       ['Kas DTR (20% dari total)', h.kasDTR, 0],
       ['Sisa 80% dari total', h.sisa80, 0],
       ['Kas Kolam (10% dari 80%)', h.kasKolam, 1],
       ['Sisa untuk coach (90% dari 80%)', h.bagi, 1],
-      ['Coach Eka (70%)', h.eka, 0],
-      ['Coach Lainnya (30%)', h.lainnya, 0]
+      [s.coach1 + ' (70%)', h.eka, 0],
+      [s.coach2 + ' (30%)', h.lainnya, 0]
     ];
-    roundRect(ctx, pad - 16, y, W - 2 * (pad - 16), baris.length * 52 + 20, 16);
-    ctx.fillStyle = '#fff'; ctx.fill(); ctx.strokeStyle = '#ffc8da'; ctx.lineWidth = 2; ctx.stroke();
-    y += 10;
     baris.forEach(function (b, i) {
-      var cy = y + i * 52 + 34, indent = b[2] ? 24 : 0;
-      ctx.fillStyle = b[2] ? '#8a5a72' : '#4a1d36';
-      ctx.font = (b[2] ? '22px ' : '24px ') + font; ctx.textAlign = 'left';
-      ctx.fillText(b[0], pad + indent, cy);
-      ctx.textAlign = 'right'; ctx.font = 'bold ' + (b[2] ? '22px ' : '24px ') + font;
+      var cy = top2 + i * rowH + 33, sub = b[2];
+      ctx.textAlign = 'left';
+      ctx.fillStyle = sub ? MUTED : INK;
+      ctx.font = (sub ? '400 22px ' : '400 24px ') + sans;
+      ctx.fillText(muat(ctx, b[0], 520), pad + (sub ? 24 : 0), cy);
+      ctx.textAlign = 'right'; ctx.font = (sub ? '400 22px ' : '500 24px ') + sans;
       ctx.fillText(rp(b[1]), W - pad, cy);
       if (i < baris.length - 1) {
-        ctx.strokeStyle = '#ffe3ec'; ctx.lineWidth = 1.5;
-        ctx.beginPath(); ctx.moveTo(pad, cy + 15); ctx.lineTo(W - pad, cy + 15); ctx.stroke();
+        ctx.strokeStyle = TINT; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(pad, top2 + (i + 1) * rowH); ctx.lineTo(W - pad, top2 + (i + 1) * rowH); ctx.stroke();
       }
     });
     ctx.textAlign = 'left';
-    ctx.fillStyle = '#8a5a72'; ctx.font = '18px ' + font;
-    ctx.fillText('Dibuat ' + new Date().toLocaleString('id-ID'), pad, tinggi - 28);
+    ctx.fillStyle = MUTED; ctx.font = '400 18px ' + sans;
+    ctx.fillText('Dibuat ' + new Date().toLocaleString('id-ID'), pad, tinggi - 30);
     return c.toDataURL('image/png');
   }
 
   $('btnRekap').onclick = function () {
-    var tempat = $('tempat').value, tgl = $('tanggal').value, msg = $('msgRekap');
-    if (!tempat) { showMsg($('err'), 'Pilih tempat dulu.', true); $('tempat').focus(); window.scrollTo(0, 0); return; }
-    if (!tgl) { showMsg($('err'), 'Isi tanggal dulu.', true); $('tanggal').focus(); window.scrollTo(0, 0); return; }
-    if (!peserta.length) { showMsg($('err'), 'Belum ada peserta yang diinput.', true); window.scrollTo(0, 0); return; }
-    $('err').className = 'msg err';
-
-    var h = hitung();
-    lastDataUrl = gambar(tempat, formatTanggal(tgl), h);
-    $('imgRekap').src = lastDataUrl;
-    $('preview').style.display = 'block';
-    $('preview').scrollIntoView({ behavior: 'smooth' });
-
-    showMsg(msg, 'Rekap selesai. Tekan Download gambar untuk menyimpan.', false);
+    var err = $('err'), msg = $('msgRekap');
+    if (!S.sesi || S.editing) { showMsg(err, 'Simpan dan kunci data pertemuan dulu.', true); window.scrollTo(0, 0); return; }
+    if (!S.peserta.length) { showMsg(err, 'Belum ada peserta yang diinput.', true); return; }
+    clearErr();
+    var btn = $('btnRekap'); btn.disabled = true; btn.textContent = '...';
+    Promise.all([fontsReady(), logoReady]).then(function () {
+      lastDataUrl = gambar();
+      $('imgRekap').src = lastDataUrl;
+      $('preview').style.display = 'block';
+      $('preview').scrollIntoView({ behavior: 'smooth' });
+      showMsg(msg, 'Rekap selesai. Tekan Download gambar untuk menyimpan.', false);
+    }).catch(function () {
+      showMsg(err, 'Gagal membuat gambar. Coba lagi.', true);
+    }).then(function () { btn.disabled = false; btn.textContent = 'Rekap'; });
   };
 
   $('btnDownload').onclick = function () {
-    if (!lastDataUrl) return;
+    if (!lastDataUrl || !S.sesi) return;
     var a = document.createElement('a');
     a.href = lastDataUrl;
-    a.download = 'rekap-renang-' + $('tempat').value + '-' + $('tanggal').value + '.png';
+    a.download = 'rekap-renang-' + S.sesi.tempat.replace(/\s+/g, '-') + '-' + S.sesi.tanggal + '.png';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
   };
 
+  /* ---------- Mulai ---------- */
   (function () {
     var d = new Date();
     $('tanggal').value = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+    try {
+      var st = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (st && Array.isArray(st.peserta)) {
+        S.peserta = st.peserta;
+        S.sesi = st.sesi || null;
+        S.editing = false;
+      }
+    } catch (e) {}
+    render();
   })();
-  try {
-    var st = JSON.parse(localStorage.getItem('dtr_state') || 'null');
-    if (st) {
-      peserta = st.peserta || [];
-      if (st.tempat) $('tempat').value = st.tempat;
-      if (st.tanggal) $('tanggal').value = st.tanggal;
-      $('tempat').dispatchEvent(new Event('change'));
-    }
-  } catch (e) {}
-  $('tanggal').addEventListener('change', simpan);
-  tampil();
 </script>
 </body>
 </html>
