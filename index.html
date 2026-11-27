@@ -62,6 +62,7 @@
   .chk small { color: var(--muted); font-size: 13px; }
   .tiketrow { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0 2px; margin-top: 4px; border-top: 1px solid var(--tint); color: var(--accent); }
   .tiketrow span:last-child { font-weight: 500; white-space: nowrap; }
+  .tiketrow span:first-child { flex: 1; min-width: 0; overflow-wrap: anywhere; }
   .hint { margin-top: 6px; font-size: 13px; color: var(--muted); }
   .hint b { color: var(--accent); font-weight: 600; }
   .list { margin: 0; padding: 0; list-style: none; }
@@ -150,7 +151,7 @@
   <div class="card" id="addCard" hidden>
     <h2>Tambah peserta <span id="hint"></span></h2>
     <div class="row">
-      <input type="text" id="nama" placeholder="Nama peserta" autocomplete="off">
+      <input type="text" id="nama" placeholder="Nama peserta (contoh: Dewi)" autocomplete="off">
       <button type="button" class="add" id="btnTambah" aria-label="Tambah peserta">+</button>
     </div>
   </div>
@@ -158,7 +159,23 @@
   <div class="card">
     <h2>Peserta <span id="jumlah"></span></h2>
     <ul class="list" id="daftar"></ul>
+    <div class="tiketrow" id="lebihRow" hidden><span id="lebihLbl"></span><span id="lebihVal"></span></div>
     <div class="tiketrow" id="tiketRow" hidden><span id="tiketLbl"></span><span id="tiketVal"></span></div>
+    <div class="tiketrow" id="lainRow" hidden><span id="lainLbl"></span><span id="lainVal"></span></div>
+  </div>
+
+  <div class="card" id="lebihCard" hidden>
+    <h2>Lebih Bayar <span>opsional</span></h2>
+    <input type="text" id="lebihKet" placeholder="Keterangan, contoh: Bu Reni bayar minggu depan" autocomplete="off">
+    <input type="text" id="lebihNom" inputmode="numeric" placeholder="Nominal (Rp)" autocomplete="off" style="margin-top:6px">
+    <div class="hint">Ditambahkan ke total.</div>
+  </div>
+
+  <div class="card" id="lainCard" hidden>
+    <h2>Lain-lain <span>opsional</span></h2>
+    <input type="text" id="lainKet" placeholder="Keterangan, contoh: Parkir" autocomplete="off">
+    <input type="text" id="lainNom" inputmode="numeric" placeholder="Nominal (Rp)" autocomplete="off" style="margin-top:6px">
+    <div class="hint">Dikurangkan dari total.</div>
   </div>
 
   <div class="card">
@@ -201,7 +218,7 @@
   var TIKET = 5000;
   var KEY = 'dtr_state_v2';
   // S.sesi = pertemuan yang sudah dikunci (tempat, tanggal, coach1, coach2)
-  var S = { sesi: null, editing: false, peserta: [] };
+  var S = { sesi: null, editing: false, peserta: [], lebih: { ket: '', nom: null }, lain: { ket: '', nom: null } };
   var lastDataUrl = '';
   var $ = function (id) { return document.getElementById(id); };
 
@@ -209,6 +226,16 @@
   function fmtCoach(n) {
     n = String(n || '').trim().replace(/^bu\s+/i, '').trim();
     return n ? 'Bu ' + n : '';
+  }
+  function lbl(nama, ket) { ket = (ket || '').trim(); return nama + (ket ? ': ' + ket : ''); }
+  function fmtNom(n) { return (n === null || n === undefined) ? '' : Number(n).toLocaleString('id-ID'); }
+  function setExtraInputs() {
+    $('lebihKet').value = S.lebih.ket; $('lebihNom').value = fmtNom(S.lebih.nom);
+    $('lainKet').value = S.lain.ket; $('lainNom').value = fmtNom(S.lain.nom);
+  }
+  function resetExtra() {
+    S.lebih = { ket: '', nom: null }; S.lain = { ket: '', nom: null };
+    setExtraInputs();
   }
   function harga() { return S.sesi ? (HARGA[S.sesi.tempat] || 0) : 0; }
   function simpan() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
@@ -226,9 +253,10 @@
     var dua = S.sesi ? !!S.sesi.coach2 : true;
     var jml = dua ? 2 : 1;
     var tiket = (S.sesi && S.sesi.tiket) ? TIKET * jml : 0;
-    var total = Math.max(0, gross - tiket);
+    var lebih = S.lebih.nom || 0, lain = S.lain.nom || 0;
+    var total = Math.max(0, gross + lebih - tiket - lain);
     var sisa80 = total * 0.80, kasKolam = sisa80 * 0.10, bagi = sisa80 - kasKolam;
-    return { dua: dua, jml: jml, gross: gross, tiket: tiket, total: total, kasDTR: total * 0.20, sisa80: sisa80,
+    return { dua: dua, jml: jml, gross: gross, tiket: tiket, lebih: lebih, lain: lain, total: total, kasDTR: total * 0.20, sisa80: sisa80,
              kasKolam: kasKolam, bagi: bagi, eka: dua ? bagi * 0.70 : bagi, lainnya: dua ? bagi * 0.30 : 0 };
   }
 
@@ -237,6 +265,8 @@
     $('setup').hidden = !showSetup;
     $('locked').hidden = showSetup;
     $('addCard').hidden = showSetup;
+    $('lebihCard').hidden = showSetup;
+    $('lainCard').hidden = showSetup;
 
     if (S.sesi) {
       $('sTempat').textContent = S.sesi.tempat;
@@ -274,6 +304,10 @@
       $('tiketLbl').textContent = 'Tiket Coach (' + h.jml + ' × ' + rp(TIKET) + ')';
       $('tiketVal').textContent = '-' + rp(h.tiket);
     }
+    $('lebihRow').hidden = !(h.lebih > 0);
+    if (h.lebih > 0) { $('lebihLbl').textContent = lbl('Lebih Bayar', S.lebih.ket); $('lebihVal').textContent = '+' + rp(h.lebih); }
+    $('lainRow').hidden = !(h.lain > 0);
+    if (h.lain > 0) { $('lainLbl').textContent = lbl('Lain-lain', S.lain.ket); $('lainVal').textContent = '-' + rp(h.lain); }
     $('total').textContent = rp(h.total);
     $('rDTR').textContent = rp(h.kasDTR);
     $('rKolam').textContent = rp(h.kasKolam); $('rBagi').textContent = rp(h.bagi);
@@ -302,7 +336,7 @@
     var prev = S.sesi;
     var berubah = prev && (prev.tempat !== tempat || prev.tanggal !== tanggal);
     if (berubah && S.peserta.length && confirm('Kolam atau tanggal berubah. Kosongkan data peserta sebelumnya?')) {
-      S.peserta = [];
+      S.peserta = []; resetExtra();
       $('preview').style.display = 'none';
     }
     S.sesi = { tempat: tempat, tanggal: tanggal, coach1: c1, coach2: c2,
@@ -324,10 +358,12 @@
   };
 
   function tambah() {
-    var nama = $('nama').value.trim();
+    var nama = fmtCoach($('nama').value);
     var err = $('err');
     if (!S.sesi || S.editing) { showMsg(err, 'Simpan data pertemuan dulu.', true); return; }
     if (!nama) { showMsg(err, 'Nama peserta belum diisi.', true); $('nama').focus(); return; }
+    var kembar = S.peserta.some(function (p) { return p.nama.toLowerCase() === nama.toLowerCase(); });
+    if (kembar) { showMsg(err, nama + ' sudah ada. Hapus dulu namanya di daftar kalau mau diedit.', true); $('nama').focus(); return; }
     clearErr();
     S.peserta.push({ nama: nama });
     $('nama').value = '';
@@ -336,9 +372,21 @@
   $('btnTambah').onclick = tambah;
   $('nama').addEventListener('keydown', function (e) { if (e.key === 'Enter') tambah(); });
 
+  function bindExtra(kind, ketId, nomId) {
+    $(ketId).addEventListener('input', function () { S[kind].ket = this.value; render(); });
+    $(nomId).addEventListener('input', function () {
+      var d = this.value.replace(/\D/g, '');
+      S[kind].nom = d === '' ? null : Number(d);
+      this.value = d === '' ? '' : Number(d).toLocaleString('id-ID');
+      render();
+    });
+  }
+  bindExtra('lebih', 'lebihKet', 'lebihNom');
+  bindExtra('lain', 'lainKet', 'lainNom');
+
   $('btnReset').onclick = function () {
     if (!confirm('Kosongkan data peserta?')) return;
-    S.peserta = []; render();
+    S.peserta = []; resetExtra(); render();
     $('preview').style.display = 'none'; $('msgRekap').className = 'msg';
   };
 
@@ -374,7 +422,11 @@
     if (h.dua) { info.push(['Coach 1', s.coach1]); info.push(['Coach 2', s.coach2]); }
     else info.push(['Coach', s.coach1]);
     var off = (4 - info.length) * 38;
-    var ex = h.tiket ? rowH : 0;
+    var pot = [];
+    if (h.lebih > 0) pot.push([lbl('Lebih Bayar', S.lebih.ket), h.lebih, '+']);
+    if (h.tiket) pot.push(['Tiket Coach (' + h.jml + ' × ' + rp(TIKET) + ')', h.tiket, '-']);
+    if (h.lain > 0) pot.push([lbl('Lain-lain', S.lain.ket), h.lain, '-']);
+    var ex = pot.length * rowH;
     var tinggi = 960 + n * rowH + ex - off - (h.dua ? 0 : 2 * rowH);
     var c = document.createElement('canvas');
     c.width = W * scale; c.height = tinggi * scale;
@@ -421,16 +473,16 @@
     ctx.textAlign = 'left';
 
     // Total
-    if (h.tiket) {
-      var ty = top + n * rowH;
+    pot.forEach(function (q, i) {
+      var ty = top + n * rowH + i * rowH;
       ctx.strokeStyle = TINT; ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.moveTo(pad, ty); ctx.lineTo(W - pad, ty); ctx.stroke();
       ctx.textAlign = 'left'; ctx.fillStyle = ACC; ctx.font = '400 24px ' + sans;
-      ctx.fillText('Tiket Coach (' + h.jml + ' × ' + rp(TIKET) + ')', pad, ty + 33);
+      ctx.fillText(muat(ctx, q[0], W - pad * 2 - 200), pad, ty + 33);
       ctx.textAlign = 'right'; ctx.font = '500 24px ' + sans;
-      ctx.fillText('-' + rp(h.tiket), W - pad, ty + 33);
+      ctx.fillText(q[2] + rp(q[1]), W - pad, ty + 33);
       ctx.textAlign = 'left';
-    }
+    });
     var boxTop = top + n * rowH + ex + 30;
     roundRect(ctx, pad - 16, boxTop, W - 2 * (pad - 16), 68, 14);
     ctx.fillStyle = TINT; ctx.fill();
@@ -475,6 +527,15 @@
     var err = $('err'), msg = $('msgRekap');
     if (!S.sesi || S.editing) { showMsg(err, 'Simpan data pertemuan dulu.', true); window.scrollTo(0, 0); return; }
     if (!S.peserta.length) { showMsg(err, 'Belum ada peserta yang diinput.', true); return; }
+    var tanpaNom = [['lebih', 'Lebih Bayar', 'lebihNom'], ['lain', 'Lain-lain', 'lainNom']].filter(function (x) {
+      return S[x[0]].ket.trim() && S[x[0]].nom === null;
+    })[0];
+    if (tanpaNom) {
+      showMsg(err, 'Isi nominal ' + tanpaNom[1] + ', atau kosongkan keterangannya.', true);
+      $(tanpaNom[2]).scrollIntoView({ behavior: 'smooth', block: 'center' });
+      $(tanpaNom[2]).focus();
+      return;
+    }
     clearErr();
     var btn = $('btnRekap'); btn.disabled = true; btn.textContent = '...';
     Promise.all([fontsReady(), logoReady]).then(function () {
@@ -503,7 +564,13 @@
     try {
       var st = JSON.parse(localStorage.getItem(KEY) || 'null');
       if (st && Array.isArray(st.peserta)) {
-        S.peserta = st.peserta;
+        S.peserta = st.peserta.map(function (p) { return { nama: fmtCoach(p.nama) }; })
+          .filter(function (p) { return p.nama; });
+        S.lebih = { ket: (st.lebih && st.lebih.ket) || '',
+                    nom: (st.lebih && typeof st.lebih.nom === 'number') ? st.lebih.nom : null };
+        S.lain = { ket: (st.lain && st.lain.ket) || '',
+                   nom: (st.lain && typeof st.lain.nom === 'number') ? st.lain.nom
+                        : (typeof st.biaya === 'number' && st.biaya > 0 ? st.biaya : null) };
         S.sesi = st.sesi || null;
         if (S.sesi) {
           S.sesi.coach1 = fmtCoach(S.sesi.coach1);
@@ -513,6 +580,7 @@
         S.editing = false;
       }
     } catch (e) {}
+    setExtraInputs();
     render();
   })();
 </script>
